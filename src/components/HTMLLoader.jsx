@@ -16,27 +16,34 @@ function HTMLLoader({
   htmlNode, componentId, cssClassName, testId, delay,
 }) {
   const sanitizedMath = DOMPurify.sanitize(htmlNode, { ...defaultSanitizeOptions });
-  const previewRef = useRef();
-
+  const previewRef = useRef(null);
   const debouncedPostContent = useDebounce(htmlNode, delay);
 
   useEffect(() => {
     let promise = Promise.resolve(); // Used to hold chain of typesetting calls
+
     function typeset(code) {
-      promise = promise.then(() => window.MathJax?.typesetPromise(code()))
+      promise = promise.then(() => {
+        if (typeof window?.MathJax !== 'undefined' && typeof window?.MathJax.startup !== 'undefined') {
+          window.MathJax.startup.defaultPageReady().then((window.MathJax?.typesetPromise(code())));
+        }
+        return null;
+      })
         .catch((err) => logError(`Typeset failed: ${err.message}`));
       return promise;
     }
+
     if (debouncedPostContent) {
       typeset(() => {
-        previewRef.current.innerHTML = sanitizedMath;
+        if (previewRef.current !== null && typeof window?.MathJax !== 'undefined') {
+          previewRef.current.innerHTML = sanitizedMath;
+        }
       });
     }
   }, [debouncedPostContent]);
 
   return (
     <div ref={previewRef} className={cssClassName} id={componentId} data-testid={testId} />
-
   );
 }
 

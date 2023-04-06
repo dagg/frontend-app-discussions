@@ -97,9 +97,9 @@ function mockAxiosReturnPagedCommentsResponses() {
   }
 }
 
-async function getThreadAPIResponse(threadId, topicId) {
+async function getThreadAPIResponse(attr = null) {
   axiosMock.onGet(`${threadsApiUrl}${discussionPostId}/`)
-    .reply(200, Factory.build('thread', { id: threadId, topic_id: topicId }));
+    .reply(200, Factory.build('thread', attr));
   await executeThunk(fetchThread(discussionPostId), store.dispatch, store.getState);
 }
 
@@ -152,14 +152,14 @@ describe('PostView', () => {
   });
 
   it('should show Topic Info for non-courseware topics', async () => {
-    await getThreadAPIResponse('thread-1', 'non-courseware-topic-1');
+    await getThreadAPIResponse({ id: 'thread-1', topic_id: 'non-courseware-topic-1' });
     renderComponent(discussionPostId);
     expect(await screen.findByText('Related to')).toBeInTheDocument();
     expect(await screen.findByText('non-courseware-topic 1')).toBeInTheDocument();
   });
 
   it('should show Topic Info for courseware topics with category', async () => {
-    await getThreadAPIResponse('thread-2', 'courseware-topic-2');
+    await getThreadAPIResponse({ id: 'thread-2', topic_id: 'courseware-topic-2' });
 
     renderComponent('thread-2');
     expect(await screen.findByText('Related to')).toBeInTheDocument();
@@ -222,6 +222,36 @@ describe('ThreadView', () => {
     function assertLastUpdateData(data) {
       expect(JSON.parse(axiosMock.history.patch[axiosMock.history.patch.length - 1].data)).toMatchObject(data);
     }
+
+    it('should display post content', async () => {
+      renderComponent(discussionPostId);
+      const post = screen.getByTestId('post-thread-1');
+      expect(within(post).queryByTestId(discussionPostId)).toBeInTheDocument();
+    });
+
+    it('should display comment content', async () => {
+      renderComponent(discussionPostId);
+      const comment = await waitFor(() => screen.findByTestId('comment-comment-1'));
+      expect(within(comment).queryByTestId('comment-1')).toBeInTheDocument();
+    });
+
+    it('should not show post footer', async () => {
+      Factory.resetAll();
+      await getThreadAPIResponse({
+        vote_count: 0, following: false, closed: false, group_id: null,
+      });
+      renderComponent(discussionPostId);
+      expect(screen.queryByTestId('post-footer')).not.toBeInTheDocument();
+    });
+
+    it('should show post footer', async () => {
+      Factory.resetAll();
+      await getThreadAPIResponse({
+        vote_count: 4, following: true, closed: false, group_id: null,
+      });
+      renderComponent(discussionPostId);
+      expect(screen.queryByTestId('post-footer')).toBeInTheDocument();
+    });
 
     it('should show and hide the editor', async () => {
       renderComponent(discussionPostId);
@@ -742,6 +772,20 @@ describe('ThreadView', () => {
   });
 
   describe('For comments replies', () => {
+    it('shows action dropdown for replies', async () => {
+      renderComponent(discussionPostId);
+
+      const reply = await waitFor(() => screen.findByTestId('reply-comment-7'));
+      expect(within(reply).getByRole('button', { name: /actions menu/i })).toBeInTheDocument();
+    });
+
+    it('should display reply content', async () => {
+      renderComponent(discussionPostId);
+
+      const reply = await waitFor(() => screen.findByTestId('reply-comment-7'));
+      expect(within(reply).queryByTestId('comment-7')).toBeInTheDocument();
+    });
+
     it('shows delete confirmation modal', async () => {
       renderComponent(discussionPostId);
 
