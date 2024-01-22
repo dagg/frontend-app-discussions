@@ -19,6 +19,8 @@ import { PostAvatar } from './PostHeader';
 import PostSummaryFooter from './PostSummaryFooter';
 import { postShape } from './proptypes';
 
+import he from 'he';
+
 const PostLink = ({
   post,
   isSelected,
@@ -72,8 +74,18 @@ const PostLink = ({
         <div className="d-flex flex-column flex-fill" style={{ minWidth: 0 }}>
           <div className="d-flex flex-column justify-content-start mw-100 flex-fill" style={{ marginBottom: '-3px' }}>
             <div className="d-flex align-items-center pb-0 mb-0 flex-fill font-weight-500">
+              <span
+                  class={
+                      classNames(
+                        'font-weight-500 font-size-14 text-primary-500 font-style align-bottom',
+                        { 'font-weight-bolder': !read },
+                      )
+                    } style={{ marginRight: 5 }}
+                >
+                  {post.title}
+              </span>
               <Truncate lines={1} className="mr-1.5" whiteSpace>
-                <span
+                {/* <span
                   class={
                       classNames(
                         'font-weight-500 font-size-14 text-primary-500 font-style align-bottom',
@@ -82,13 +94,13 @@ const PostLink = ({
                     }
                 >
                   {post.title}
-                </span>
+                </span> */}
                 <span class="align-bottom"> </span>
                 <span
                   class="text-gray-700 font-weight-normal font-size-14 font-style align-bottom"
                 >
                   {isPostPreviewAvailable(post.previewBody)
-                    ? post.previewBody
+                    ? he.decode(post.previewBody)
                     : intl.formatMessage(messages.postWithoutPreview)}
                 </span>
               </Truncate>
