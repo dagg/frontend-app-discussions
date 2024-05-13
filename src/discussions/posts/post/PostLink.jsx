@@ -100,7 +100,8 @@ const PostLink = ({
                   class="text-gray-700 font-weight-normal font-size-14 font-style align-bottom"
                 >
                   {isPostPreviewAvailable(post.previewBody)
-                    ? he.decode(post.previewBody)
+                    // ? he.decode(post.previewBody)
+                    ? ""
                     : intl.formatMessage(messages.postWithoutPreview)}
                 </span>
               </Truncate>
