@@ -3,6 +3,7 @@ import { messages as headerMessages } from '@edx/frontend-component-header';
 import { messages as paragonMessages } from '@edx/paragon';
 
 import arMessages from './messages/ar.json';
+import elMessages from './messages/el.json';
 // no need to import en messages-- they are in the defaultMessage field
 import csMessages from './messages/cs.json';
 import deMessages from './messages/de_DE.json';
@@ -24,6 +25,7 @@ import zhcnMessages from './messages/zh_CN.json';
 
 const appMessages = {
   ar: arMessages,
+  el: elMessages,
   de: deMessages,
   'es-419': es419Messages,
   fr: frMessages,

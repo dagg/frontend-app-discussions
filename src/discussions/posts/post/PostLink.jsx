@@ -2,6 +2,7 @@ import React, { useContext, useMemo } from 'react';
 import PropTypes from 'prop-types';
 
 import classNames from 'classnames';
+import he from 'he';
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 
@@ -95,9 +96,11 @@ const PostLink = ({
                 >
                   {title}
                 </span>
-                <span className="text-gray-700 font-weight-normal font-size-14 font-style align-bottom">
-                  {isPostPreviewAvailable(previewBody) ? previewBody : intl.formatMessage(messages.postWithoutPreview)}
-                </span>
+                {/* <span className="text-gray-700 font-weight-normal font-size-14 font-style align-bottom">
+                  {isPostPreviewAvailable(previewBody)
+                    ? he.decode(previewBody)
+                    : intl.formatMessage(messages.postWithoutPreview)}
+                </span> */}
               </div>
               {showAnsweredBadge && (
                 <Icon
